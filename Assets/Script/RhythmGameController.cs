@@ -1,32 +1,34 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RhythmGameController : MonoBehaviour
 {
-    public GameObject[] trackObjects; // 트랙을 나타내는 게임 오브젝트 배열
-    public KeyCode[] inputKeys = { KeyCode.A, KeyCode.S, KeyCode.Semicolon, KeyCode.Quote }; // 키 입력 정의
-    public Transform[] judgmentLines; // 각 트랙 아래쪽에 판정선을 배치할 위치
+    public GameObject[] trackObjects;
+    public KeyCode[] inputKeys = { KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F };
+    public Transform[] judgmentLines;
 
-    private float perfectThreshold = 0.032f; // 32ms로 완화
-    private float greatThreshold = 0.128f; // 128ms로 완화
-    private float goodThreshold = 0.192f; // 192ms로 완화
+    public Text judgmentText; // 판정 문구를 표시할 UI 텍스트 컴포넌트
+
+    private float perfectThreshold = 0.032f;
+    private float greatThreshold = 0.128f;
+    private float goodThreshold = 0.192f;
+
+    private int score = 0;
 
     void Update()
     {
-        // 트랙별 키 입력 확인
         for (int i = 0; i < trackObjects.Length; i++)
         {
             if (Input.GetKeyDown(inputKeys[i]))
             {
-                CheckNoteTiming(i); // 각 트랙의 키 입력에 대한 판정 호출
+                CheckNoteTiming(i);
             }
         }
     }
 
     void CheckNoteTiming(int trackIndex)
     {
-        // 트랙에 가장 가까운 노트를 찾음
         Transform closestNote = null;
         float closestDistance = float.MaxValue;
 
@@ -43,28 +45,47 @@ public class RhythmGameController : MonoBehaviour
 
         if (closestNote != null)
         {
-            float timingDifference = closestDistance / 1; // 시간 차이 계산 (임의의 descentSpeed 사용)
+            float timingDifference = closestDistance / 1;
 
-            // 판정 결과 확인 및 출력
             if (timingDifference <= perfectThreshold)
             {
-                Debug.Log("Perfect!");
+                ShowJudgment("Perfect!");
+                score += 300;
                 Destroy(closestNote.gameObject);
             }
             else if (timingDifference <= greatThreshold)
             {
-                Debug.Log("Great!");
+                ShowJudgment("Great!");
+                score += 200;
                 Destroy(closestNote.gameObject);
             }
             else if (timingDifference <= goodThreshold)
             {
-                Debug.Log("Good!");
+                ShowJudgment("Good!");
+                score += 100;
                 Destroy(closestNote.gameObject);
             }
             else
             {
-                Debug.Log("Miss!");
+                ShowJudgment("Miss!");
             }
+
+            Debug.Log("Current Score: " + score);
         }
+    }
+
+    // 판정 문구를 보여주는 메서드
+    void ShowJudgment(string judgment)
+    {
+        judgmentText.text = judgment; // 판정 문구 설정
+        judgmentText.gameObject.SetActive(true); // 판정 문구 표시
+        StartCoroutine(HideJudgmentAfterDelay()); // 일정 시간 후 사라지게 함
+    }
+
+    // 일정 시간 후 판정 문구를 숨김
+    IEnumerator HideJudgmentAfterDelay()
+    {
+        yield return new WaitForSeconds(0.5f); // 0.5초 동안 문구 표시
+        judgmentText.gameObject.SetActive(false); // 판정 문구 숨기기
     }
 }
