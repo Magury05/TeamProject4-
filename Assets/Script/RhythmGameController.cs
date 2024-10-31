@@ -9,12 +9,18 @@ public class RhythmGameController : MonoBehaviour
     public Transform[] judgmentLines;
 
     public Text judgmentText; // 판정 문구를 표시할 UI 텍스트 컴포넌트
+    public Text scoreText;    // 점수를 표시할 UI 텍스트 컴포넌트
 
     private float perfectThreshold = 0.032f;
     private float greatThreshold = 0.128f;
     private float goodThreshold = 0.192f;
 
     private int score = 0;
+
+    void Start()
+    {
+        UpdateScoreText(); // 시작할 때 초기 점수를 화면에 표시
+    }
 
     void Update()
     {
@@ -45,7 +51,7 @@ public class RhythmGameController : MonoBehaviour
 
         if (closestNote != null)
         {
-            float timingDifference = closestDistance / 1;
+            float timingDifference = closestDistance;
 
             if (timingDifference <= perfectThreshold)
             {
@@ -70,7 +76,7 @@ public class RhythmGameController : MonoBehaviour
                 ShowJudgment("Miss!");
             }
 
-            Debug.Log("Current Score: " + score);
+            UpdateScoreText(); // 점수를 업데이트하여 화면에 표시
         }
     }
 
@@ -87,5 +93,11 @@ public class RhythmGameController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f); // 0.5초 동안 문구 표시
         judgmentText.gameObject.SetActive(false); // 판정 문구 숨기기
+    }
+
+    // 점수 UI 텍스트를 업데이트하는 메서드
+    void UpdateScoreText()
+    {
+        scoreText.text = "Score: " + score;
     }
 }
